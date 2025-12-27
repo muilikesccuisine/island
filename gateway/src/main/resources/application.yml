@@ -1,0 +1,70 @@
+server:
+  port: 9000
+
+spring:
+  config:
+    import[0]: nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+    import[1]: nacos:share.yaml
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      discovery:
+        server-addr: 192.168.64.128:8848
+      config:
+        server-addr: 192.168.64.128:8848
+        file-extension: yaml
+        # group: DEFAULT_GROUP # 显式指定 Group，虽然默认是这个，但写上更保险
+        # namespace: xxxx-xxxx-xxxx  # 注意：如果你在 Nacos 建了具体的命名空间，必须填 ID，不能只填名字。如果是系统默认的 public，则不需要这行。
+    gateway:
+      # 路由配置
+      routes:
+        # 1. 认证服务 (Auth)
+        - id: auth
+          uri: http://localhost:9001
+          predicates:
+            - Path=/island/auth/**
+          filters:
+            - StripPrefix=1
+
+        # 2. 幸存者服务 (Survivor)
+        - id: survivor
+          uri: http://localhost:9002
+          predicates:
+            - Path=/island/survivor/**
+          filters:
+            - StripPrefix=1
+
+        # 3. 物资服务 (Inventory)
+        - id: inventory
+          uri: http://localhost:9003
+          predicates:
+            - Path=/island/inventory/**
+          filters:
+            - StripPrefix=1
+
+        # 4. 任务服务 (Task)
+        - id: task
+          uri: http://localhost:9004
+          predicates:
+            - Path=/island/task/**
+          filters:
+            - StripPrefix=1
+
+        # 5. 探索服务 (Exploration)
+        - id: exploration
+          uri: http://localhost:9005
+          predicates:
+            - Path=/island/exploration/**
+          filters:
+            - StripPrefix=1
+
+        #6. 基建服务 (Infrastructure)
+        - id: infrastructure
+          uri: http://localhost:9006
+          predicates:
+            - Path=/island/infrastructure/**
+          filters:
+            - StripPrefix=1

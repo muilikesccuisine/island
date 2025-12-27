@@ -1,0 +1,20 @@
+server:
+  port: 9001
+
+spring:
+  config:
+    import[0]: nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+    import[1]: nacos:share.yaml
+
+  application:
+    name: auth
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      discovery:
+        server-addr: 192.168.64.128:8848
+      config:
+        server-addr: 192.168.64.128:8848
+        file-extension: yaml
+

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 1. 修正版本号，使用稳定版本 (Java 21 推荐 Spring Boot 3.2+) -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.5</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.my</groupId>
+    <artifactId>island</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <!-- 2. 必须添加打包方式为 pom -->
+    <packaging>pom</packaging>
+
+    <name>island</name>
+    <description>island</description>
+
+    <modules>
+        <module>auth</module>
+        <module>common</module>
+        <module>exploration</module>
+        <module>gateway</module>
+        <module>infrastructure</module>
+        <module>inventory</module>
+        <module>survivor</module>
+        <module>task</module>
+        <module>auth</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version> <!-- 对应 Spring Boot 3.3.x 的 Cloud 版本 -->
+        <alibaba-nacos.version>2023.0.3.2</alibaba-nacos.version>
+        <island.version>0.0.1-SNAPSHOT</island.version>
+
+        <!-- 显式指定项目编码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <!-- 3. 依赖版本管理：只声明版本，不实际引入。子模块按需引入。 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud 依赖管理 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${alibaba-nacos.version}</version> <!-- 适配Spring Boot 3.x -->
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- === 管理项目内部所有模块的版本 === -->
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>common</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>auth</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>exploration</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>gateway</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>infrastructure</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>inventory</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>survivor</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.my</groupId>
+                <artifactId>task</artifactId>
+                <version>${island.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 全局公共依赖（所有模块都会自动引入，慎重添加） -->
+    <dependencies>
+        <!-- Lombok 几乎每个模块都需要，放这里很方便 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- 4. 插件管理：这里只定义配置，不运行。防止 common 模块被打成可执行 jar -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
