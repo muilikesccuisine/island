@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -189,5 +190,27 @@ public class SurvivorServiceImpl implements SurvivorService {
     @Override
     public Mono<Integer> getSurvivorCount() {
         return survivorRepository.countByIsDeleted(0);
+    }
+
+    @Override
+    public Mono<Integer> getGrade(Long id) {
+        return survivorRepository.findById(id)
+                .map(Survivor::getIslandGrade)
+                .switchIfEmpty(Mono.error(new BusinessException("用户不存在")));
+    }
+
+    @Override
+    @Transactional
+    public Mono<Void> addPoints(AddPointsReq req) {
+        return survivorRepository.findById(req.getSurvivorId())
+                .switchIfEmpty(Mono.error(new BusinessException("用户不存在")))
+                .flatMap(survivor -> {
+                    int currentPoints = survivor.getContributionPoint() != null ? survivor.getContributionPoint() : 0;
+                    survivor.setContributionPoint(currentPoints + req.getPoints());
+                    log.info("幸存者 {} (ID:{}) 增加贡献点: {}，当前总计: {}", 
+                            survivor.getName(), survivor.getId(), req.getPoints(), survivor.getContributionPoint());
+                    return survivorRepository.save(survivor);
+                })
+                .then();
     }
 }

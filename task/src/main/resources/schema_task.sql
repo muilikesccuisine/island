@@ -3,6 +3,7 @@
 -- ==========================================
 CREATE TABLE IF NOT EXISTS task (
     id BIGINT PRIMARY KEY COMMENT '雪花算法ID',
+    reference_id BIGINT COMMENT '关联外部业务ID(如选举ID)',
 
     -- 任务基础信息
     title VARCHAR(100) NOT NULL COMMENT '任务标题',
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS task (
     type VARCHAR(50) NOT NULL COMMENT '任务类型: GATHERING(采集), CONSTRUCTION(建设), EXPLORATION(探索), VOTE(投票/选举), SOCIAL(社交/娱乐)',
     priority VARCHAR(20) DEFAULT 'NORMAL' COMMENT '优先级: CRITICAL, HIGH, NORMAL, LOW',
     is_mandatory TINYINT(1) DEFAULT 0 COMMENT '是否强制: 1-是, 0-否',
+    is_public_enroll TINYINT DEFAULT 1 COMMENT '是否公开报名: 1-是, 0-否(仅限指派)',
 
     -- 任务规模与限制 (新增)
     min_participants INT DEFAULT 1 COMMENT '最少参与人数需求 (启动门槛)',
@@ -28,6 +30,7 @@ CREATE TABLE IF NOT EXISTS task (
 
     -- 奖励预设 (JSON格式，预留)
     rewards_config TEXT COMMENT '任务奖励配置 JSON',
+    reward_status TINYINT DEFAULT 0 COMMENT '奖励结算状态: 0-未结算, 1-已结算',
 
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -45,7 +48,7 @@ CREATE TABLE IF NOT EXISTS task_participant (
     status VARCHAR(50) NOT NULL COMMENT '参与状态: ASSIGNED(已指派), ACCEPTED(已接受), IN_PROGRESS(进行中), COMPLETED(已完成), FAILED(失败), REJECTED(拒绝)',
 
     -- 提交内容
-    submission_content TEXT COMMENT '提交内容(投票对象ID, 采集数量, 探索报告等)',
+    submission_content TEXT COMMENT '提交内容(采集数量, 探索报告等)',
     submission_time DATETIME COMMENT '提交时间',
 
     -- 反馈/评分

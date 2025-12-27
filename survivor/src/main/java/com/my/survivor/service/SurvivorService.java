@@ -31,4 +31,8 @@ public interface SurvivorService {
     Mono<Void> changeGrade(@Valid ChangeGradeReq req);
 
     Mono<Integer> getSurvivorCount();
+
+    Mono<Integer> getGrade(Long id);
+
+    Mono<Void> addPoints(AddPointsReq req);
 }

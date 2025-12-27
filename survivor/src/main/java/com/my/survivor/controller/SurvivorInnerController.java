@@ -2,6 +2,7 @@ package com.my.survivor.controller;
 
 import com.my.common.model.Result;
 import com.my.survivor.dto.rep.SurvivorRep;
+import com.my.survivor.dto.req.AddPointsReq;
 import com.my.survivor.dto.req.ChangeGradeReq;
 import com.my.survivor.dto.req.SurvivorCreateReq;
 import com.my.survivor.dto.req.UserVerifyReq;
@@ -49,6 +50,18 @@ public class SurvivorInnerController {
     public Mono<Result<Integer>> getSurvivorCount() {
         return survivorService.getSurvivorCount()
                 .map(Result::success);
+    }
+
+    @GetMapping("/grade/{id}")
+    public Mono<Result<Integer>> getGrade(@PathVariable Long id) {
+        return survivorService.getGrade(id)
+                .map(Result::success);
+    }
+
+    @PostMapping("/points/add")
+    public Mono<Result<Void>> addPoints(@RequestBody @Valid AddPointsReq req) {
+        return survivorService.addPoints(req)
+                .thenReturn(Result.success());
     }
 
 }
