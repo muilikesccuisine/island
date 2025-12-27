@@ -4,7 +4,6 @@ import com.my.common.model.Result;
 import com.my.survivor.dto.rep.SurvivorRep;
 import com.my.survivor.dto.req.ChangePasswordReq;
 import com.my.survivor.dto.req.SurvivorUpdateReq;
-import com.my.survivor.entity.Survivor;
 import com.my.survivor.service.SurvivorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

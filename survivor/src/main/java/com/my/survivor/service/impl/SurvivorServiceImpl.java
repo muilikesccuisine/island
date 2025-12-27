@@ -3,9 +3,7 @@ package com.my.survivor.service.impl;
 import com.my.common.exception.BusinessException;
 import com.my.common.util.IdUtils;
 import com.my.survivor.dto.rep.SurvivorRep;
-import com.my.survivor.dto.req.ChangePasswordReq;
-import com.my.survivor.dto.req.SurvivorCreateReq;
-import com.my.survivor.dto.req.SurvivorUpdateReq;
+import com.my.survivor.dto.req.*;
 import com.my.survivor.entity.Survivor;
 import com.my.survivor.enums.GradeType;
 import com.my.survivor.enums.PhysicalState;
@@ -28,7 +26,7 @@ public class SurvivorServiceImpl implements SurvivorService {
 
     private final SurvivorRepository survivorRepository;
 
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public Mono<SurvivorRep> createSurvivor(SurvivorCreateReq req) {
@@ -164,16 +162,32 @@ public class SurvivorServiceImpl implements SurvivorService {
     }
 
     @Override
-    public Mono<SurvivorRep> verifyPassword(String userId, String password) {
-        return survivorRepository.findByUserIdAndIsDeleted(userId, 0)
+    public Mono<SurvivorRep> verifyPassword(UserVerifyReq req) {
+        return survivorRepository.findByUserIdAndIsDeleted(req.getUserId(), 0)
                 .switchIfEmpty(Mono.error(new BusinessException("用户不存在")))
                 .flatMap(survivor -> {
-                    if (!passwordEncoder.matches(password, survivor.getPassword())) {
+                    if (!passwordEncoder.matches(req.getPassword(), survivor.getPassword())) {
                         return Mono.error(new BusinessException("密码错误"));
                     }
                     SurvivorRep rep = new SurvivorRep();
                     BeanUtils.copyProperties(survivor, rep);
                     return Mono.just(rep);
                 });
+    }
+
+    @Override
+    public Mono<Void> changeGrade(ChangeGradeReq req) {
+        return survivorRepository.findByIdAndIsDeleted(req.getSurvivorId(), 0)
+                .switchIfEmpty(Mono.error(new BusinessException("用户不存在")))
+                .flatMap(survivor -> {
+                    survivor.setIslandGrade(req.getGrade());
+                    return survivorRepository.save(survivor);
+                })
+                .then();
+    }
+
+    @Override
+    public Mono<Integer> getSurvivorCount() {
+        return survivorRepository.countByIsDeleted(0);
     }
 }

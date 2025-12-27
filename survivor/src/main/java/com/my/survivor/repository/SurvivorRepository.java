@@ -13,4 +13,8 @@ public interface SurvivorRepository extends R2dbcRepository<Survivor, Long> {
 
     // 【新增】根据 姓名 + 年龄 + 性别 查找是否存在已注册的档案
     Mono<Survivor> findByNameAndAgeAndGenderAndIsDeleted(String name, Integer age, Integer gender, Integer isDeleted);
+
+    Mono<Survivor> findByIdAndIsDeleted(Long id, Integer isDeleted);
+
+    Mono<Integer> countByIsDeleted(int i);
 }

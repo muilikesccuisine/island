@@ -1,4 +1,4 @@
-package com.my.survivor.entity;
+package com.my.governance.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -7,39 +7,39 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Table("election")
 @Data
-@Table("survivor")
-public class Survivor implements Persistable<Long> {
+public class Election implements Persistable<Long> {
     @Id
     private Long id;
-    private String userId;
-    private String password;
 
-    private String name;
-    private Integer gender;
-    private Integer age;
+    private String title;
+    private Integer status; // PREPARING, VOTING, FINISHED, VOID
 
-    private Integer physicalState;
+    private LocalDateTime startTime;
 
-    private String medicalHistory;
+    private LocalDateTime endTime;
 
-    private Integer islandGrade;
+    private BigDecimal minVoteRate;
 
-    private Integer contributionPoint;
+    private Integer winStrategy;
 
-    // 社交展示
-    private LocalDateTime lastActiveAt;
-    private String avatarUrl;
+    private Integer totalEligibleVoters;
 
-    // 系统审计
-    private Integer isDeleted;
+    private Integer finalVotesCount;
+
+    private Long winnerId;
+
+    private Long taskId;
+
     @CreatedDate
-    private LocalDateTime createdAt;
+    private LocalDateTime createdTime;
+
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedTime;
 
     @Transient
     private boolean isNew = false;

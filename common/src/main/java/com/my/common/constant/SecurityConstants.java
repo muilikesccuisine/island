@@ -9,7 +9,7 @@ public interface SecurityConstants {
     /**
      * 透传的用户角色请求头
      */
-    String HEADER_USER_ROLE = "X-User-Role";
+    String HEADER_USER_ROLE = "HEADER_USER_ROLE";
     
     /**
      * 认证头

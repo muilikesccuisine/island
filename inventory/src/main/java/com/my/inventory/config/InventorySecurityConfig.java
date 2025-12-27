@@ -1,4 +1,4 @@
-package com.my.survivor.config;
+package com.my.inventory.config;
 
 import com.my.common.config.CommonIslandConfig;
 import com.my.common.constant.SecurityConstants;
@@ -21,7 +21,7 @@ import java.util.Collections;
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
-public class SurvivorSecurityConfig {
+public class InventorySecurityConfig {
 
     private final CommonIslandConfig commonIslandConfig;
 

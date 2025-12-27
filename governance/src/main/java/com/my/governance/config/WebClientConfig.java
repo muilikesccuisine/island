@@ -1,7 +1,7 @@
-package com.my.auth.config;
+package com.my.governance.config;
 
-import com.my.auth.client.SurvivorClient;
 import com.my.common.config.CommonIslandConfig;
+import com.my.governance.client.SurvivorClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

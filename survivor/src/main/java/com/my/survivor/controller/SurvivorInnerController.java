@@ -2,9 +2,9 @@ package com.my.survivor.controller;
 
 import com.my.common.model.Result;
 import com.my.survivor.dto.rep.SurvivorRep;
+import com.my.survivor.dto.req.ChangeGradeReq;
 import com.my.survivor.dto.req.SurvivorCreateReq;
 import com.my.survivor.dto.req.UserVerifyReq;
-import com.my.survivor.entity.Survivor;
 import com.my.survivor.service.SurvivorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ public class SurvivorInnerController {
      * 内部接口：校验账号密码
      */
     @PostMapping("/verify")
-    public Mono<Result<SurvivorRep>> verify(@RequestBody UserVerifyReq req) {
-        return survivorService.verifyPassword(req.getUserId(), req.getPassword())
+    public Mono<Result<SurvivorRep>> verify(@RequestBody @Valid UserVerifyReq req) {
+        return survivorService.verifyPassword(req)
                 .map(Result::success);
     }
 
@@ -38,4 +38,17 @@ public class SurvivorInnerController {
         return survivorService.createSurvivor(req)
                 .map(Result::success);
     }
+
+    @PostMapping("/grade/change")
+    public Mono<Result<Void>> changeGrade(@RequestBody @Valid ChangeGradeReq req) {
+        return survivorService.changeGrade(req)
+                .map(Result::success);
+    }
+
+    @GetMapping("/count")
+    public Mono<Result<Integer>> getSurvivorCount() {
+        return survivorService.getSurvivorCount()
+                .map(Result::success);
+    }
+
 }

@@ -1,9 +1,8 @@
 package com.my.survivor.service;
 
 import com.my.survivor.dto.rep.SurvivorRep;
-import com.my.survivor.dto.req.ChangePasswordReq;
-import com.my.survivor.dto.req.SurvivorCreateReq;
-import com.my.survivor.dto.req.SurvivorUpdateReq;
+import com.my.survivor.dto.req.*;
+import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 public interface SurvivorService {
@@ -27,5 +26,9 @@ public interface SurvivorService {
     Mono<Void> updateProfile(String userId, SurvivorUpdateReq req);
 
     // 校验用户密码，成功则返回用户信息（不含密码），失败抛异常
-    Mono<SurvivorRep> verifyPassword(String userId, String password);
+    Mono<SurvivorRep> verifyPassword(UserVerifyReq req);
+
+    Mono<Void> changeGrade(@Valid ChangeGradeReq req);
+
+    Mono<Integer> getSurvivorCount();
 }

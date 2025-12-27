@@ -4,14 +4,14 @@
 CREATE TABLE IF NOT EXISTS election (
     id BIGINT PRIMARY KEY COMMENT '雪花算法ID',
     title VARCHAR(100) NOT NULL COMMENT '选举标题 (如: 第一届岛主选举)',
-    status VARCHAR(20) NOT NULL DEFAULT 'PREPARING' COMMENT '状态: PREPARING(报名中), VOTING(投票中), FINISHED(已结束), VOID(流选)',
+    status INT NOT NULL DEFAULT '0' COMMENT '状态: PREPARING(报名中):0, VOTING(投票中):1, FINISHED(已结束):2, VOID(已作废):3',
     
     start_time DATETIME NOT NULL COMMENT '投票开始时间',
     end_time DATETIME NOT NULL COMMENT '投票截止时间',
     
     -- 规则控制
     min_vote_rate DECIMAL(5,2) DEFAULT 0.50 COMMENT '最低投票率要求 (默认0.50)',
-    win_strategy VARCHAR(20) DEFAULT 'MOST_VOTES' COMMENT '获胜规则: MOST_VOTES, OVER_HALF',
+    win_strategy INT DEFAULT '0' COMMENT '获胜规则: MOST_VOTES:0, OVER_HALF:1',
     
     -- 统计快照
     total_eligible_voters INT NOT NULL COMMENT '发起选举时的合资格选民总数',
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS election_vote (
 CREATE TABLE IF NOT EXISTS governance_member (
     id BIGINT PRIMARY KEY COMMENT '雪花算法ID',
     survivor_id BIGINT NOT NULL COMMENT '幸存者ID',
-    role VARCHAR(20) NOT NULL COMMENT '官职: OWNER(岛主), ADMIN(管理员)',
+    role INT NOT NULL COMMENT '官职: OWNER(岛主):2, ADMIN(管理员):1',
     status TINYINT DEFAULT 1 COMMENT '状态: 1-在职, 0-离职/撤职',
     
     appointed_by BIGINT DEFAULT 0 COMMENT '任命人ID (系统/选举产生为0)',
