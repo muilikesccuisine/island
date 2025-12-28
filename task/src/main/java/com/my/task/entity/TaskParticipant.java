@@ -1,38 +1,49 @@
 package com.my.task.entity;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
 @Table("task_participant")
 @Data
-public class TaskParticipant {
+public class TaskParticipant implements Persistable<Long> {
     @Id
     private Long id;
-    
-    @Column("task_id")
+
     private Long taskId;
-    
-    @Column("survivor_id")
+
     private Long survivorId;
     
-    private String status;
-    
-    @Column("submission_content")
+    private Integer status;
+
     private String submissionContent;
-    
-    @Column("submission_time")
+
     private LocalDateTime submissionTime;
     
     private String feedback;
     private Integer rating;
-    
-    @Column("created_time")
+
+    @CreatedDate
     private LocalDateTime createdTime;
     
-    @Column("updated_time")
+    @LastModifiedDate
     private LocalDateTime updatedTime;
+
+    @Transient
+    private boolean isNew = false;
+
+    @Override
+    public boolean isNew() {
+        return isNew || id == null;
+    }
+
+    public void markAsNew() {
+        this.isNew = true;
+    }
 }

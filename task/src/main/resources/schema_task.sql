@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS task (
     remark VARCHAR(255) COMMENT '备注',
 
     -- 任务属性
-    type VARCHAR(50) NOT NULL COMMENT '任务类型: GATHERING(采集), CONSTRUCTION(建设), EXPLORATION(探索), VOTE(投票/选举), SOCIAL(社交/娱乐)',
-    priority VARCHAR(20) DEFAULT 'NORMAL' COMMENT '优先级: CRITICAL, HIGH, NORMAL, LOW',
+    type INT NOT NULL COMMENT '任务类型: GATHERING(采集):0, CONSTRUCTION(建设):1, EXPLORATION(探索):2, VOTE(投票/选举):3, SOCIAL(社交/娱乐):4, OTHER(其他):5',
+    priority INT DEFAULT 'NORMAL' COMMENT '优先级: CRITICAL:3, HIGH:2, NORMAL:1, LOW:0',
     is_mandatory TINYINT(1) DEFAULT 0 COMMENT '是否强制: 1-是, 0-否',
     is_public_enroll TINYINT DEFAULT 1 COMMENT '是否公开报名: 1-是, 0-否(仅限指派)',
 
@@ -22,10 +22,10 @@ CREATE TABLE IF NOT EXISTS task (
 
     -- 发布者快照信息 (即使人没了，发布记录还在)
     initiator_id BIGINT COMMENT '发布人ID (系统发布为0或NULL)',
-    initiator_type VARCHAR(20) NOT NULL COMMENT '发布者身份类型: SYSTEM, OWNER, ADMIN, CIVILIAN',
+    initiator_type INT NOT NULL COMMENT '发布者身份类型: SYSTEM:3, OWNER:2, ADMIN:1, CIVILIAN:0',
 
     -- 状态与时间
-    status VARCHAR(50) NOT NULL COMMENT '状态: PENDING, PUBLISHED, IN_PROGRESS, COMPLETED, FAILED, CANCELLED',
+    status INT NOT NULL COMMENT '状态: PENDING:0, PUBLISHED:1, IN_PROGRESS:2, COMPLETED:3, FAILED:4, CANCELLED:5',
     deadline DATETIME DEFAULT NULL COMMENT '截止时间',
 
     -- 奖励预设 (JSON格式，预留)
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS task_participant (
     survivor_id BIGINT NOT NULL COMMENT '幸存者ID',
 
     -- 参与状态
-    status VARCHAR(50) NOT NULL COMMENT '参与状态: ASSIGNED(已指派), ACCEPTED(已接受), IN_PROGRESS(进行中), COMPLETED(已完成), FAILED(失败), REJECTED(拒绝)',
+    status INT NOT NULL COMMENT '参与状态: ASSIGNED(已指派):0, ACCEPTED(已接受):1, IN_PROGRESS(进行中):2, COMPLETED(已完成):3, SETTLED(已结算):4, FAILED(失败):5, REJECTED(拒绝):6',
 
     -- 提交内容
     submission_content TEXT COMMENT '提交内容(采集数量, 探索报告等)',
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS task_log (
     task_id BIGINT NOT NULL COMMENT '任务ID',
     operator_id BIGINT COMMENT '操作人ID (系统为0)',
 
-    action VARCHAR(50) NOT NULL COMMENT '动作: PUBLISH, ASSIGN, COMPLETE, CANCEL, EDIT',
+    action INT NOT NULL COMMENT '动作: PUBLISH:0, ASSIGN:1, REJECT:2, AUDIT:2, COMPLETE:3, CANCEL:4, EDIT:5',
     details TEXT COMMENT '变更详情/备注',
 
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP,

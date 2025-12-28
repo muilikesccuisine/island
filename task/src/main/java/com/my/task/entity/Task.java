@@ -1,56 +1,62 @@
 package com.my.task.entity;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
 @Table("task")
 @Data
-public class Task {
+public class Task implements Persistable<Long> {
     @Id
     private Long id;
+    private Long referenceId;
+
     private String title;
     private String description;
     private String remark;
-    private String type;
-    private String priority;
-    
-    @Column("is_mandatory")
+    private Integer type;
+    private Integer priority;
+
     private Integer isMandatory;
-    
-    @Column("min_participants")
-    private Integer minParticipants;
-    
-    @Column("max_participants")
-    private Integer maxParticipants;
-    
-    @Column("initiator_id")
-    private Long initiatorId;
-    
-    @Column("initiator_type")
-    private String initiatorType;
-    
-    private String status;
-    private LocalDateTime deadline;
-    
-    @Column("rewards_config")
-    private String rewardsConfig;
 
-    @Column("reference_id")
-    private Long referenceId;
-
-    @Column("reward_status")
-    private Integer rewardStatus;
-
-    @Column("is_public_enroll")
     private Integer isPublicEnroll;
 
-    @Column("created_time")
-    private LocalDateTime createdTime;
+    private Integer minParticipants;
+
+    private Integer maxParticipants;
+
+    private Long initiatorId;
+
+    private Integer initiatorType;
     
-    @Column("updated_time")
+    private Integer status;
+    private LocalDateTime deadline;
+
+    private String rewardsConfig;
+
+    private Integer rewardStatus;
+
+    @CreatedDate
+    private LocalDateTime createdTime;
+
+    @LastModifiedDate
     private LocalDateTime updatedTime;
+
+    @Transient
+    private boolean isNew = false;
+
+    @Override
+    public boolean isNew() {
+        return isNew || id == null;
+    }
+
+    public void markAsNew() {
+        this.isNew = true;
+    }
 }

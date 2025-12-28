@@ -1,6 +1,5 @@
 package com.my.inventory.entity;
 
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -26,7 +25,8 @@ public class ItemDefinition implements Persistable<Long> {
     private String unit;
 
     private String description;
-    
+
+    // todo @CreatedBy 全局
     private Long creatorId;
 
     private Long operatorId;

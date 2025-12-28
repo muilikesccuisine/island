@@ -8,8 +8,8 @@ import java.util.List;
 public class TaskPublishReq {
     private String title;
     private String description;
-    private String type; // GATHERING, CONSTRUCTION, EXPLORATION, VOTE, etc.
-    private String priority; // CRITICAL, HIGH, NORMAL, LOW
+    private Integer type; // GATHERING, CONSTRUCTION, EXPLORATION, VOTE, etc.
+    private Integer priority; // CRITICAL, HIGH, NORMAL, LOW
     private Integer isMandatory; // 1-是, 0-否
     private LocalDateTime deadline;
     private Integer isPublicEnroll; // 1-公开报名, 0-指定指派

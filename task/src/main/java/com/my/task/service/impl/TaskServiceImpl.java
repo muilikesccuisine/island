@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,7 +63,6 @@ public class TaskServiceImpl implements TaskService {
                     if (result.getCode() != 200 || result.getData() < 1) {
                         return Mono.error(new BusinessException("无权发布任务"));
                     }
-                    String initiatorType = result.getData() == 2 ? "OWNER" : "ADMIN";
 
                     // 2. 创建任务
                     Task task = new Task();
@@ -75,8 +75,8 @@ public class TaskServiceImpl implements TaskService {
                     task.setDeadline(req.getDeadline());
                     task.setIsPublicEnroll(req.getIsPublicEnroll());
                     task.setInitiatorId(operatorId);
-                    task.setInitiatorType(initiatorType);
-                    task.setStatus("PUBLISHED");
+                    task.setInitiatorType(result.getData());
+                    task.setStatus(1);
                     task.setRewardsConfig(req.getRewardsConfig());
                     task.setRewardStatus(0);
 
@@ -90,13 +90,13 @@ public class TaskServiceImpl implements TaskService {
                                                 tp.setId(IdUtils.getSnowflakeId());
                                                 tp.setTaskId(savedTask.getId());
                                                 tp.setSurvivorId(survivorId);
-                                                tp.setStatus("ASSIGNED");
+                                                tp.setStatus(0);
                                                 return participantRepository.save(tp);
                                             })
-                                            .then(recordLog(savedTask.getId(), operatorId, "PUBLISH", "发布并指派任务"))
+                                            .then(recordLog(savedTask.getId(), operatorId, 0, "发布并指派任务"))
                                             .thenReturn(savedTask);
                                 }
-                                return recordLog(savedTask.getId(), operatorId, "PUBLISH", "发布公开任务")
+                                return recordLog(savedTask.getId(), operatorId, 0, "发布公开任务")
                                         .thenReturn(savedTask);
                             });
                 });
@@ -108,15 +108,15 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findById(taskId)
                 .switchIfEmpty(Mono.error(new BusinessException("任务不存在")))
                 .flatMap(task -> {
-                    if (!"PUBLISHED".equals(task.getStatus())) {
+                    if (!Objects.equals(task.getStatus(), 1)) {
                         return Mono.error(new BusinessException("任务当前不可加入"));
                     }
 
                     return participantRepository.findByTaskIdAndSurvivorId(taskId, survivorId)
                             .flatMap(existing -> {
                                 // 如果是被指派的，接受任务
-                                if ("ASSIGNED".equals(existing.getStatus())) {
-                                    existing.setStatus("ACCEPTED");
+                                if (Objects.equals(existing.getStatus(), 0)) {
+                                    existing.setStatus(1);
                                     return participantRepository.save(existing).then();
                                 }
                                 return Mono.error(new BusinessException("你已在任务中"));
@@ -128,7 +128,7 @@ public class TaskServiceImpl implements TaskService {
                                     tp.setId(IdUtils.getSnowflakeId());
                                     tp.setTaskId(taskId);
                                     tp.setSurvivorId(survivorId);
-                                    tp.setStatus("ACCEPTED");
+                                    tp.setStatus(1);
                                     return participantRepository.save(tp).then();
                                 }
                                 return Mono.error(new BusinessException("该任务仅限指派人员"));
@@ -143,12 +143,12 @@ public class TaskServiceImpl implements TaskService {
                 .switchIfEmpty(Mono.error(new BusinessException("未参与此任务")))
                 .flatMap(tp -> {
                     if (req.getIsRejected()) {
-                        tp.setStatus("REJECTED");
+                        tp.setStatus(5);
                         // 记录拒绝日志，方便管理员审计
                         return participantRepository.save(tp)
-                                .then(recordLog(req.getTaskId(), survivorId, "REJECT", "拒绝强制任务，原因: " + req.getContent()));
+                                .then(recordLog(req.getTaskId(), survivorId, 2, "拒绝强制任务，原因: " + req.getContent()));
                     } else {
-                        tp.setStatus("COMPLETED");
+                        tp.setStatus(3);
                         tp.setSubmissionContent(req.getContent());
                         tp.setSubmissionTime(LocalDateTime.now());
                         return participantRepository.save(tp).then();
@@ -170,7 +170,7 @@ public class TaskServiceImpl implements TaskService {
                     return participantRepository.findById(req.getParticipantId())
                             .switchIfEmpty(Mono.error(new BusinessException("参与记录不存在")))
                             .flatMap(tp -> {
-                                if ("SETTLED".equals(tp.getStatus())) {
+                                if (Objects.equals(tp.getStatus(), 4)) {
                                     return Mono.error(new BusinessException("任务已结算，不可重复操作"));
                                 }
 
@@ -178,15 +178,15 @@ public class TaskServiceImpl implements TaskService {
                                 tp.setFeedback(req.getFeedback());
 
                                 if (req.getPassed()) {
-                                    tp.setStatus("SETTLED"); // 标记为已结算 (幂等)
+                                    tp.setStatus(4); // 标记为已结算 (幂等)
                                     return participantRepository.save(tp)
                                             .then(taskRepository.findById(tp.getTaskId()))
                                             .flatMap(task -> executeRewards(tp.getSurvivorId(), task.getRewardsConfig()))
-                                            .then(recordLog(tp.getTaskId(), operatorId, "AUDIT_PASS", "审核通过并结算奖励"));
+                                            .then(recordLog(tp.getTaskId(), operatorId, 3, "审核通过并结算奖励"));
                                 } else {
-                                    tp.setStatus("FAILED");
+                                    tp.setStatus(5);
                                     return participantRepository.save(tp)
-                                            .then(recordLog(tp.getTaskId(), operatorId, "AUDIT_REJECT", "审核驳回"));
+                                            .then(recordLog(tp.getTaskId(), operatorId, 3, "审核驳回"));
                                 }
                             });
                 });
@@ -198,7 +198,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         try {
-            Map<String, Object> configMap = objectMapper.readValue(rewardsConfig, new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> configMap = objectMapper.readValue(rewardsConfig, new TypeReference<>() {});
             return Flux.fromIterable(configMap.entrySet())
                     .flatMap(entry -> {
                         RewardHandler handler = rewardHandlers.get(entry.getKey());
@@ -215,7 +215,7 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    private Mono<Void> recordLog(Long taskId, Long operatorId, String action, String details) {
+    private Mono<Void> recordLog(Long taskId, Long operatorId, Integer action, String details) {
         TaskLog taskLog = new TaskLog();
         taskLog.setId(IdUtils.getSnowflakeId());
         taskLog.setTaskId(taskId);
